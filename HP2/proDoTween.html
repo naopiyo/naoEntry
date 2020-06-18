@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>naoのblenderからUnityへの移植</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+</head>
+
+
+<body>
+  <script src="JS/siteTemplate2.js"></script>
+  <div id="container">
+    <div id="left">
+      <p>traPで制作されている『Clay Plate's Story』(2017春~)という3Dゲームで3Dモデルを動かすためのblenderからUnityへの移植の方法を書きました。</p>
+      <script type="text/javascript">leftWrite();</script>
+    </div>
+
+    <div id="contents">
+      <h1>blenderからUnityへの移植</h1>
+      <div>『Clay Plate's Story』の企画がたった当初、最初に私がモデリングからプログラム班にそれを渡すま
+        での流れを確立することとなり、キャラ作りの手引書？のようなものを書くこととなりました。
+      </div>
+
+
+      <h2>Unityのモデルのプログラム</h2>
+
+      <h2>BlenderからUnityへ</h2>
+      <div>まずはBlenderから作ったモデルをfbx形式でエクスポートします。</div>
+      
+      <img src="./IMG/92fbaefc637eb099a827e6d706705459.png" alt="icon" width="80%">
+      
+      <div>次に、下記のdoTween.zipをダウンロードしてunityで開いてください。</div>
+
+      <p>doTween.zip <a href="./IMG/doTween.zip">ダウンロード</a></p>
+
+      <div>そして、すでにあるAssets/Model/surimeのファイルと同じく
+      Assets/Model/( 作るモデルの名前)のファイルを作ってそのファイルの下に先程のfbxファイルをインポートします
+      </div>
+
+      <img src="./IMG/9a1be9ff0234a05c7323581562b0013f.png" alt="icon" width="80%">
+      
+      
+      <div>上の画像のようにfbxのファイルとその色のデータが入ったMaterialsのファイルの二つが入ります。</div>
+      <div>このfbxファイルの三角マークをクリックして中身を見ると、このモデルの部品一式と、アニメーションファイル（再生マークのやつ）が入っています。
+      これはアニメーションのここの材料です。</div>
+      <div>アニメーション関連は後で行うので今はこの中身が見えないように上の画像のようにしておいて下さい。</div>
+      
+      <img src="./IMG/061a6ab20e76769ec16f5709e3564716.png" alt="icon" width="80%">
+      
+      
+      <h2>マテリアルの設定</h2>
+      
+      <div>次に、fbxファイルをクリック&ドラッグして上の作業スペースにおいて下さい。</div>
+      
+      
+      <img src="./IMG/aeb4970463a2d90398a6986ac6af7a91.png" alt="icon" width="80%">
+      
+      
+      <div>ここでお気づきかもしれませんが、このファイルはテクスチャが貼られていませんこのテクスチャを外部から設定して行きましょう。</div>
+      <div>
+      必要なテクスチャをfbxファイルと同じ階層にあるMaterialsに入れます。
+      新たにマテリアルを作って設定するか、すでにあるマテリアルをいじります。
+      </div>
+      <div>透過部分があるならShader/Legacy Shaders/Transparent/Diffuse</div>
+      <div>ないならShader/Legacy Shaders/Diffuse</div>
+      <div>を使ってテクスチャを入れます。</div>
+      
+      
+      <img src="./IMG/f935a25ca3c490a47412945a88673d11.png" alt="icon" width="80%">
+      
+      <img src="./IMG/040f8cbcfccd2c9e9ef891b6d30f8ced.png" alt="icon" width="80%">
+      
+      
+      <img src="./IMG/4c5d8ab5e2c908fa067f7ed2751045b2.png" alt="icon" width="80%">
+      
+      
+      <h2>アニメーションの下準備</h2>
+      
+      <div>ではできたファイルにアニメーションを仕込みます。</div>
+      
+      
+      <img src="./IMG/8a0095f3efc1a1a8f073c8fb2c91c46c.png" alt="icon" width="80%">
+      
+      
+      <div>すでにこのモデルの中身にはAnimatorが入っています。ControllerがNoneになっています。</div>
+      
+      
+      <img src="./IMG/884effca5a81f81a72e888a3815d6224.png" alt="icon" width="80%">
+      
+      
+      <div>ここにAnimator Controllerをfbxファイルと同じ階層に作ってぶち込みます。</div>
+      
+      
+      <img src="./IMG/480d80c846f3bff486a4203f51d906d1.png" alt="icon" width="80%">
+      
+      
+      <div>このAnimator Controllerをダブルクリックすると、Animatorが起動します。</div>
+      
+      <div>ここに、先程みたfbxファイルの下にあるアニメーションの材料をぶち込みます。これにフラグ（アニメーション遷移の条件）をつけると以下の矢印ができます。（後でプログラムの説明と並行して言います）
+      </div>
+      
+      <img src="./IMG/728da723a2828a536ef259171b84d369.png" alt="icon" width="80%">
+      
+      <img src="./IMG/5da3af019030d5b3fedf990fba6812be.png" alt="icon" width="80%">
+      
+      
+      
+      <h2>プログラムとか</h2>
+      
+      <div>さて、ここまで準備ができたらプログラムを書きましょう。Assers/Model/surimeの下にあるsurimeMoveのスクリプトをコピーしてAssets/Model/( 作るモデルの名前)にペースト、わかりやすい名前書き換えて下さい。</div>
+      <div>このスクリプトを開くとまあごちゃごちゃ説明が書いてあるのでそれを読んでくれという感じですが、</div>
+
+      ```java:main.java
+      10 public GameObject obj;
+      ```
+      <div>
+      これでモデルのインスペクター（下の画像）にobjと出るので、そこに自身のモデルをドラックして登録します。
+      </div>
+
+      ```java:main.java
+      15 private const float animeFps = 24; 
+      ```
+      
+      <div>ここで、自身の作ったアニメーションのfps(1秒にどれくらいのコマ数があるアニメーションを作ったか)を登録して下さい。</div>
+
+      ```java:main.java
+      18 public AnimationCurve 名前;
+      ```
+      
+      <div>これはでモデルのインスペクターにどれくらいの割合で動くかを設定できます。この緑の線が描かれているのをクリックすると、編集できます。</div>
+      
+      
+      <img src="./IMG/8bf8d0fd630fcc17581a71b6015f66a4.png" alt="icon" width="80%">
+      
+      <img src="./IMG/c55368459986a977f333fe72c819e66f.png" alt="icon" width="80%">
+      
+      
+      
+      
+      <div>
+      さて、ここからが本題です。
+      スライムのスクリプトを例に見て行きましょう。
+      </div>
+
+      ```java:main.java
+      public void IdleMove()
+      {
+      nowmove = false; 
+      mysequence.Kill (false);
+      } 
+      ```
+      <div>
+      のように一つ一つ動きを作って行きます。ちなみにこの関数は変えないで下さい。
+      </div>
+      
+      <div>とりあえず最初のAttack()の関数を説明しましょう。</div>
+
+      ```java:main.java
+      public void Attack(){
+          if (nowmove == true) {
+            return;
+          } else {
+            nowmove = true;
+          }
+      ```
+
+      <div>とりあえず最初にこの関数が呼ばれた時に他の作業が中断できるかどうかを確認し、もし大丈夫なら関数を開始します。</div>
+      
+      ```java:main.java
+              mysequence.Kill (false);
+      ```
+
+      <div>
+        次に現在設定されているmysequenceを破棄します（mysequenceは現在プログラムで動かしているオブジェクトの動き方です。この後にmysequenceの設定をするので、そこの説明でmysequenceは理解して下さい）
+      </div>
+
+      ```java:main.java
+          Vector3 dir = myLocalVec();
+          float moveTime = 65 / animeFps;
+      ```
+
+      <div>
+      これが初期設定ですdirに自身が現在動いている向きを取得して、moveTimeにこの関数を読んでいる時間を設定しますこの関数では65/animeFps(65/24秒)でした。これを設定するときは、Blenderで自分が何コマ使ったかを見た方がいいでしょう。
+      はい、mysequenceつまりは自分がする移動の仕方の設定です。
+      </div>
+
+      ```java:main.java
+          mysequence = DOTween.Sequence ()
+      ```
+
+      <div>
+      までは定例文として書いてしまいましょう。
+      この後に一つ目の動きを入れます
+      </div>
+
+      ```java:main.java
+            .Append (
+              obj.transform.DOMoveZ (transform.position.z + 6 * dir.z, moveTime)
+              .SetEase (easingAttackHorizontal)				
+            )
+      ```
+      
+      <div>Appendでmysequenceに動きを追加することを明示して下さい。
+      （Appendとは現在している動作が終わったあとにその動作を行う、的な指示です）
+      このAppendの中にどこに動くか、どういうふうに動くかを書きます。
+      </div>
+      
+      ```java:main.java
+            .Append (
+              obj.transform.DOMoveZ (自身が向かう場所, 何秒かけていくか)
+              .SetEase (AnimationCurveの名前)				
+            )
+      ```
+
+      <div>AnimationCurveとは、先ほど行った緑の線のやつです</div>
+      
+      <img src="./IMG/69d86b12872a6eee7181eb27646c98a2.png" alt="icon" width="80%">
+      
+      <div>さて、ここに別の動きを加えます。</div>
+
+      ```java:main.java
+            .Join (
+              obj.transform.DOMoveX (transform.position.x + 6 * dir.x, moveTime)
+              .SetEase (easingAttackHorizontal)
+            )
+      ```
+
+      <div>
+      Joinは、現在行う動作と同時に行うという意味です。現在、X座標系に出されている指示はないのでAppendでも構いません。
+      中身はまあ同じなので割愛っと
+      </div>
+
+      ```java:main.java
+            .OnStart (() => {
+              animator.SetTrigger ("Attack");
+            })
+            .OnKill (() => {
+              nowmove = false;
+            })
+      ```
+
+      <div>はい、OnStart、OnKillはみたまんま、その動作をする瞬間にすること/終わった瞬間または破棄されたにすることをかきます。</div>
+      <div>animator.SetTriggerはアニメーション遷移のフラグ立てです。
+      とりあえずこのAttack()の関数が説明し終わったらこの説明をします。</div>
+
+      ```java:main.java
+        .Join (
+          obj.transform.DOMoveY (transform.position.y + 2, 15/animeFps)
+          .SetEase (easingAttackVertical)
+          .SetDelay (20 / animeFps)
+          .SetLoops(2,LoopType.Yoyo)
+            );
+        }
+      ```
+
+      <div>はい、新たにSetDelay/SetLoopsが出てきました。SetDelayは時間差で動かしたいとき、SetLoopsは動きをループさせたい時に書きます。</div>
+      <div>ループに関しては種類があるので、ネットで調べた方がよほどわかりやすいので、まぁ、察して下さい。</div>
+      
+      <h2>アニメーション遷移</h2>
+      <div>アニメーション遷移の仕方を説明します。</div>
+      
+      
+      <img src="./IMG/653409c466f63aef28d0988e2cf39e64.png" alt="icon" width="80%">
+      
+      <div>要するにこの矢印の作り方、というわけです。</div>
+      <div>
+        さて先ほど作ったAnimator Controllerを開くと左にParametersというのがあります。ここにフラグに使う要素を入れて行きます。一度に全部作ると混乱するので一つ一つ作りましょう。
+      </div>
+
+      <img src="./IMG/9889cbee014b5bdf90afbe3261f4dba1.png" alt="icon" width="80%">
+      
+      <div>Parametersの『＋』をクリックすると四つのフラグ要素が出てきます</div>
+      
+      <div>Floatは走る速度などの数値</div>
+      <div>Intも数値（ただし整数</div>
+      <div>BoolはTrue/Falseの真偽をみる</div>
+      <div>TriggerはBoolと同じだが、一回そのフラグが使われると自動的にFalseになる。</div>
+      
+      <div>さてこれらでフラグを使った後は、それぞれのアニメーションの要素を右クリックしてMake Transitionで遷移先のアニメーションに繋ぎます。</div>
+      
+      <div>『Entry』と『Any State』がすでにありますが、『Entry』は最初にそのモデルが生成された時に自動で再生する先のアニメーションを指定しています。</div>
+      <div>『Any State』は特定のフラグ、例えば死亡したというフラグがたった時に他の何よりも優先して遷移させる時に使います。</div>
+      <div>全てのアニメーションの要素から矢印がすでに繋がっている、と考えればわかりやすい？でしょう。</div>
+      
+      <img src="./IMG/e987e9cb73c5184cb04dc54f000c48ad.png" alt="icon" width="80%">
+      
+      <div>次にこの矢印が使われる条件をConditionsで追加しますBool/Triggerは特に何もありませんが、他二つはとある数値より大きいか小さいかを問われるので設定しましょう。</div>
+      <div>そのアニメーションが終わった瞬間にフラグ無しで自動的に次のアニメーションに行きたいときはHas Exit Timeにチェックを入れましょう。</div>
+      
+      <img src="./IMG/001ad61ecce0b7a662ca85410b273d60.png" alt="icon" width="80%">
+      
+      
+      <h2>実験</h2>
+      <div>
+      はい、ではこのモデルを実際に動かしてみましょう。
+      関数が本当にあっているか試したいですよね？
+      </div>
+      
+      <div>作成したモデルにBox Collider（当たり判定のやつ）とRigidbody（重力とかなんとか）をまず入れます。</div>
+      
+      <img src="./IMG/e612433603f6f99c7638ac3eb5f8f7f0.png" alt="icon" width="80%">
+      
+      <img src="./IMG/4827d8da782b70f1d6e7dfef7242e88f.png" alt="icon" width="80%">
+      
+      
+      <div>すでに作業スペースに出ているCanvas以下のボタンを使いましょう。</div>
+      <div>
+      とりあえずCanvas/AttackのInspecter常にあるOn Click()にかけたスクリプトをドラックしてその中の関数（画像ではsurimeMoveのAttack()という関数）を設定し、ボタンを押せばその関数が呼ばれるようにします。
+      </div>
+
+      <img src="./IMG/698e9cf1a9a38cdf51f96e0c24d0dbb4.png" alt="icon" width="80%">
+      
+      
+      
+      <img src="./IMG/aea7875184692f5d70622b4907d19f74.png" alt="icon" width="80%">
+      
+      
+      <img src="./IMG/2b8522246ba691573a5b1727916ac873.png" alt="icon" width="80%">
+      
+      <div>これで、実際動かして見るとその関数があっているかどうかがわかります。</div>
+      
+      <img src="./IMG/1b3f516d9105cfff60a0a749100b3f53.png" alt="icon" width="80%">
+      
+      <h2>ぷ班に渡す</h2>
+      <div>最後に、できたモデルをAssets/Model/( 作るモデルの名前)にワークスペースからドラックさせます。</div>
+      <div>そしてAssets/Model/( 作るモデルの名前)をUnityパッケージとしてエクスポートしてぷ班に渡せば仕事は終わりです。</div>
+      
+      <img src="./IMG/f722e515df44f8e94beed86a90bd5713.png" alt="icon" width="80%">
+
+
+
+      
+
+    </div>
+  </div>
+
+  <script type="text/javascript">containerWrite();</script>
+
+</body>
+</html>
