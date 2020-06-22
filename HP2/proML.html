@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <title>２クラスでの機械学習</title>
   <link rel="stylesheet" href="../CSS/style.css">
+  <script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" }},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { matchFontHeight: false },
+    displayAlign: "left",
+    displayIndent: "2em"
+  });
+</script>
 </head>
 
 
@@ -17,23 +32,66 @@
 
     <div id="contents">
       <h1>２クラスでの機械学習</h1>
+      パーセプトロンの学習規則というものがある．
+      $N$個の二次元のサンプルデータを用意し，正例・負例のラベルをつける．この正例を負例を正しく判別するために以下の式を使う．
+      \begin{align}
+      w^{k+1} &= 
+      \begin{cases}
+        w^{k} + \rho x^{k} &(x^{k} \in Positive~case~and ~ f(x^{k}) < 0) \\
+        w^{k} - \rho x^{k} &(x^{k} \in Negative~case~and ~ f(x^{k}) \geq 0) \\
+        w^{k}&(otherwise)
+      \end{cases}\\
+      f(x^{k}) &= w^{(k)t}x^{k}&\\
+      x^{k} &= [x^{k}_{0},x^{k}_{1}]^{t}&\\
+      w^{k} &= [w^{k}_{0},w^{k}_{1}]^{t}&
+      \end{align}
+      $w^{0}$に適当な値を入れ，その後サンプル$x^{k}$(ただし，$x^{k}=x^{k+n}$)を使って$w$を更新していくというものだ．
+      なお，この更新は全てのサンプルに対して更新がおこな亡くなるまで行う．<br>
+      この$\rho$の値を固定値にして更新していく方法を固定増分法という．以下にその更新状況を示す．
+      なお，赤い実線が導き出した解答で，青い実線は，色が濃いほど更新が$k$が大きいときに行われたことを示す．
       
-      <p>更新の値pを工夫した時</p>
+      <p>更新の値$\rho = 0.00001$の時</p>
+      <p id = "rho0.00001">更新の値$\rho$ = 0.00001の時</p>
+
+      <br>
+      <canvas id = "Fig0.00001" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
+      <br>
+      <p>更新の値$\rho = 0.001$の時</p>
+      <p id = "rho0.001">更新の値$\rho$ = 0.001の時</p>
+
+      <br>
+      <canvas id = "Fig0.001" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
+      <br>
+      <p>更新の値$\rho = 0.1$の時</p>
+      <p id = "rho0.1">更新の値$\rho$ = 0.1の時</p>
+
+      <br>
+      <canvas id = "Fig0.1" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
+      <br>
+
+      傾向からして，$\rho$が小さすぎると，最適値に至るまでになんども同じ方向に更新が行われており，逆に$\rho$が大きいと，最適値を挟んで振動的に振れている．
+      <img src="./img/roSize.png" alt="$\rho$の値による更新"　 title="$\rho$の値による更新" width="100%" height="100%">
+
+
+      そこで，$\rho$の値を以下のように調整して，実行する．
+
+      \begin{align}
+          \rho &= 
+          \begin{cases}
+	          -\frac{w^{k}_{0}x^{k}_{0} + w^{k}_{1}x^{k}_{1}}{(x^{k}_{0})^{2} + (x^{k}_{1})^{2}} &(x^{k} \in Positive~case~and ~ f(x^{k}) < 0) \\
+	          \frac{w^{k}_{0}x^{k}_{0} + w^{k}_{1}x^{k}_{1}}{(x^{k}_{0})^{2} + (x^{k}_{1})^{2}} (1+\varepsilon) &(x^{k} \in Negative~case~and ~ f(x^{k}) \geq 0) 
+          \end{cases}\\
+          \varepsilon & > 0&
+      \end{align}
+
+      これは，$\rho$の値を$w^{k},x^{k}$の値によって動的に変化させている．変化先は，更新に使ったサンプルが更新後のモデルによって正しく判別され，
+      かつ今まで正しく分類されているサンプルが，更新後のモデルでも正しく判別されるような値になるようにしている．うまくいけば，$k\leq 2N$で探索が終わる．
+      <p>更新の値$\rho$を工夫した時</p>
+      <p id = "rhoMove">更新の値$\rho$を工夫した時</p>
       <br>
       <canvas id = "FigML" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
       <br>
-      <p>更新の値p = 0.00001の時</p>
-      <br>
-      <canvas id = "Fig0.5" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
-      <br>
-      <p>更新の値p = 0.001の時</p>
-      <br>
-      <canvas id = "Fig1.0" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
-      <br>
-      <p>更新の値p = 0.1の時</p>
-      <br>
-      <canvas id = "Fig1.5" width="660px" height="660px"  style="background-color: #778899; border: 1px solid black"></canvas>
-      <br>
+      以下に，探索に使ったサンプルデータを記す．
       <br>
       <script type="text/javascript" src="JS/MachineLearning.js"></script>
       <br>

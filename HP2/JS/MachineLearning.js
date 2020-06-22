@@ -18,18 +18,18 @@ function doML(){
     //p=0.5
     setStart2(0.00001);
     gameStart2();
-    display2("Fig0.5");
+    display2("Fig0.00001");
 
     //p=1.0
     setStart2(0.001);
     gameStart2();
-    display2("Fig1.0");
+    display2("Fig0.001");
 
     //p=1.5
     setStart2(0.1);
     gameStart2();
     //console.log(p);
-    display2("Fig1.5");
+    display2("Fig0.1");
 
 
     displayDataValue();//サンプルデータを数値で表示する．
@@ -171,7 +171,7 @@ function doML(){
         //displayAnsLine(c,Ans,"#FF0000");
         displayPositiveNegative(c);
 
-        displaySearchCount();
+        displaySearchCount(canvasName);
     }
 
     function displayLineSet(c){
@@ -190,12 +190,25 @@ function doML(){
         return V1 * rate + V2 * (1-rate);
     }
 
-    function displaySearchCount(){
-        console.log("探索回数 = " + searchCount);
-        console.log("予測データを更新した回数 = " + (lineSet.length-1));
-        document.write("<div>探索回数 = " + searchCount + "</div>");
-        document.write("<div>予測データを更新した回数 = " + (lineSet.length-1) + "</div>");
+    function displaySearchCount(canvasName){
+        //console.log("探索回数 = " + searchCount);
+        //console.log("予測データを更新した回数 = " + (lineSet.length-1));
+        //document.write("<div>探索回数 = " + searchCount + "</div>");
+        //document.write("<div>予測データを更新した回数 = " + (lineSet.length-1) + "</div>");
         
+        if(canvasName == "Fig0.1"){
+            target = document.getElementById("rho0.1");
+            target.innerHTML = "探索回数(k) $= " + searchCount + "$,$w$の更新回数$= " + (lineSet.length-1) + "$";
+        }else if(canvasName == "Fig0.001"){
+            target = document.getElementById("rho0.001");
+            target.innerHTML = "探索回数(k) $= " + searchCount + "$,$w$の更新回数$= " + (lineSet.length-1) + "$";
+        }else if(canvasName == "Fig0.00001"){
+            target = document.getElementById("rho0.00001");
+            target.innerHTML = "探索回数(k) $= " + searchCount + "$,$w$の更新回数$= " + (lineSet.length-1) + "$";
+        }else{
+            target = document.getElementById("rhoMove");
+            target.innerHTML = "探索回数(k) $= " + searchCount + "$,$w$の更新回数$= " + (lineSet.length-1) + "$";
+        }
     }
 
     function displayDataValue(){
