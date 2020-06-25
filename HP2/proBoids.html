@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>群れのプログラム</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+  <link rel="stylesheet" href="../CSS/slider.css">
+  <script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" }},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { matchFontHeight: false },
+    displayAlign: "left",
+    displayIndent: "2em"
+  });
+</script>
+</head>
+
+
+<body>
+  <script src="JS/siteTemplate2.js"></script>
+  <div id="container">
+    <div id="left">
+      <p>群れのプログラム</p>
+      <script type="text/javascript">leftWrite();</script>
+    </div>
+
+    <div id="contents">
+      <h1>群れのプログラム</h1>
+        群の動きをシミュレートする方法として，ボイド理論というものがある．
+        ボイド理論は以下の３つのルールを規定するだけで，
+        鳥の群れのソミュレーションができるという．
+        <ul>
+          <li>凝集(Cohesion)</li>
+          <li>分離(Separation)</li>
+          <li>整列(Alignment)</li>
+        </ul>
+
+        <div style="margin-bottom:10px;">
+          <form action="#" id="form">
+            凝集の強さ :
+                        <input id="Cohesion" type="range" min="-5" max="5" step="0.1" value="0.4" style="width:400px;">
+                        <span id="current-Cohesion-value"></span>
+            <br>
+            分離の強さ : 
+                        <input id="Separation" type="range" min="-5" max="5" step="0.1" value="1" style="width:400px;">
+                        <span id="current-Separation-value"></span>
+            <br>
+            整列の強さ : 
+                        <input id="Alignment" type="range" min="-5" max="5" step="0.1" value="0.5" style="width:400px;">
+                        <span id="current-Alignment-value"></span>
+          </form>
+      </div>
+        <br>
+          <canvas id = "Canvas" width="600px" height="600px"  style="background-color: 	#d8f2f0; border: 1px solid black"></canvas>
+        <br>
+
+
+      
+      <script src="JS/Boids.js"></script>
+
+      <script>
+
+        
+        const inputCohesionElem = document.getElementById('Cohesion'); // input要素
+        const CohesionValue = document.getElementById('current-Cohesion-value'); // 埋め込む先のspan要素
+        const inputSeparationElem = document.getElementById('Separation'); // input要素
+        const SeparationValue = document.getElementById('current-Separation-value'); // 埋め込む先のspan要素
+        const inputAlignmentElem = document.getElementById('Alignment'); // input要素
+        const AlignmentValue = document.getElementById('current-Alignment-value'); // 埋め込む先のspan要素
+
+        function setCurrentValue(A,B,C){  //数値をHTML上に表示
+          CohesionValue.innerText = A;
+          SeparationValue.innerText = B;
+          AlignmentValue.innerText = C;
+        }
+        function changeValue(){
+          //数値を取得する
+          var Cohesion = parseFloat(document.getElementById("Cohesion").value);
+          var Separation = parseFloat(document.getElementById("Separation").value);
+          var Alignment = parseFloat(document.getElementById("Alignment").value);
+          /*
+          console.log(Cohesion)
+          console.log(Separation)
+          console.log(Alignment)
+          */
+          //数値をHTML上に表示
+          setCurrentValue(Cohesion,Separation,Alignment);
+          //数値をプログラムに反映
+          upDateData(Cohesion,Separation,Alignment);
+        }
+        window.onload = () => {
+          inputCohesionElem.addEventListener('input', changeValue);// スライダー変化時にイベントを発火
+          inputSeparationElem.addEventListener('input', changeValue);// スライダー変化時にイベントを発火
+          inputAlignmentElem.addEventListener('input', changeValue);// スライダー変化時にイベントを発火
+          setCurrentValue(inputCohesionElem.value,inputSeparationElem.value,inputAlignmentElem.value); // ページ読み込み時に値をセット
+        }
+      </script>
+      
+
+    </div>
+  </div>
+
+  <script type="text/javascript">containerWrite();</script>
+
+</body>
+</html>
