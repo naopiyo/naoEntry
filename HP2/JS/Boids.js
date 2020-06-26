@@ -79,195 +79,17 @@ class BOID {
     }
 }
 
-class RANDOMBOID extends BOID{
-    drawBoid(){
-        //描画コンテキストの取得
-        //var context = canvas.getContext('2d');
-        this.upDateBirdsPos()
-        //console.log(this.birds[0])
-        this.drawBirds()
-    }
-
-    upDateBirdsPos(){
-        for(let i = 0;i < this.boidSize;i++){
-            this.birds[i].upDatePos(Math.floor(Math.random()*11 - 5),Math.floor(Math.random()*11 - 5))
-        }
-    }
-
-    drawBirds(){
-        for(let i = 0;i < this.boidSize;i++){
-            ctx.fillStyle = this.birds[i].color
-            //円（塗りつぶし）
-            ctx.beginPath();
-            ctx.arc(this.birds[i].x, this.birds[i].y, BIRD_SIZE, 0, Math.PI*2, false);
-            ctx.fill();
-        }
-    }
-}
-
-class COHESIONBOID extends BOID{
-    drawBoid(){
-        //描画コンテキストの取得
-        //var context = canvas.getContext('2d');
-        this.upDateBirdsPos()
-        //console.log(this.birds[0])
-        this.drawBirds()
-    }
-
-    upDateBirdsPos(){
-        for(let i = 0;i < this.boidSize;i++){
-            let buff = this.cohesion(i);
-            this.birds[i].upDatePos(buff[0],buff[1])
-        }
-        //console.log(this.birds[0])
-    }
-
-    drawBirds(){
-        for(let i = 0;i < this.boidSize;i++){
-            ctx.fillStyle = this.birds[i].color;
-            //円（塗りつぶし）
-            ctx.beginPath();
-            ctx.arc(this.birds[i].x, this.birds[i].y, BIRD_SIZE, 0, Math.PI*2, false);
-            ctx.fill();
-        }
-    }
-    //凝集
-    cohesion(index){
-        let center = {x:0,y:0}
-        //群れの中心地を割り出す．
-        for(let i =0;i < this.boidSize;i++){
-            if(i === index){
-                continue;
-            }
-            center.x += this.birds[i].x;
-            center.y += this.birds[i].y;
-        }
-        center.x /= (this.boidSize - 1);
-        center.y /= (this.boidSize - 1);
-        //群れの中心に向かう加速度を与える
-        return [(center.x - this.birds[index].x) / canvas.width ,   (center.y - this.birds[index].y) / canvas.height];
-    }
-}
-
-class SEPARATIONBOID extends BOID{
-    drawBoid(){
-        //描画コンテキストの取得
-        //var context = canvas.getContext('2d');
-        this.upDateBirdsPos()
-        //console.log(this.birds[0])
-        this.drawBirds()
-    }
-
-    upDateBirdsPos(){
-        for(let i = 0;i < this.boidSize;i++){
-            let buff = this.separation(i);
-            this.birds[i].upDatePos(buff[0],buff[1])
-        }
-        //console.log(this.birds[0])
-    }
-    drawBirds(){
-        for(let i = 0;i < this.boidSize;i++){
-            ctx.fillStyle = this.birds[i].color;
-            //円（塗りつぶし）
-            ctx.beginPath();
-            ctx.arc(this.birds[i].x, this.birds[i].y, BIRD_SIZE, 0, Math.PI*2, false);
-            ctx.fill();
-        }
-    }
-
-    //分離
-    separation(index){
-        //近接する鳥の位置を割り出す．
-        let buff = {x:0,y:0}
-        for(let i = 0;i < this.boidSize;i++){
-            if(i === index){
-                continue;
-            }
-            let distance = this.birds[index].calcDistance(this.birds[i].x,this.birds[i].y);
-            //近い鳥に対して離れる方向に加速する
-            if(distance < BOID_PX){
-                let vectorA = {x:this.birds[i].x - this.birds[index].x , y:this.birds[i].y - this.birds[index].y};
-                if(Math.abs(vectorA.x) < BIRD_SIZE){
-                    if(Math.random() < 0.5){
-                        buff.x -= BOID_PX / BIRD_SIZE;
-                    }else{
-                        buff.x -= -BOID_PX / BIRD_SIZE;
-                    }
-                }else{
-                    buff.x -= vectorA.x;
-                }
-                
-                if(Math.abs(vectorA.y) < BIRD_SIZE){
-                    if(Math.random() < 0.5){
-                        buff.y -= BOID_PX / BIRD_SIZE;
-                    }else{
-                        buff.y -= -BOID_PX / BIRD_SIZE;
-                    }
-                }else{
-                    buff.y -= vectorA.y;
-                }
-                //console.log(buff)
-            }
-        }
-        
-        return [buff.x ,   buff.y];
-    }
-}
-
-class ALIGNMENTBOID extends BOID{
-    drawBoid(){
-        //描画コンテキストの取得
-        //var context = canvas.getContext('2d');
-        this.upDateBirdsPos()
-        //console.log(this.birds[0])
-        this.drawBirds()
-    }
-
-    upDateBirdsPos(){
-        for(let i = 0;i < this.boidSize;i++){
-            let buff = this.alignment(i);
-            this.birds[i].upDatePos(buff[0],buff[1])
-        }
-        //console.log(this.birds[0])
-    }
-
-    drawBirds(){
-        //console.log(this.birds.length)
-        for(let i = 0;i < this.boidSize;i++){
-            ctx.fillStyle = this.birds[i].color;
-            //円（塗りつぶし）
-            ctx.beginPath();
-            ctx.arc(this.birds[i].x, this.birds[i].y, BIRD_SIZE, 0, Math.PI*2, false);
-            ctx.fill();
-        }
-    }
-
-    //整列
-    alignment(index){
-        let avarage = {dx:0,dy:0};
-        for(let i = 0;i < this.boidSize;i++){
-            if(i === 0){
-                continue;
-            }
-            avarage.dx += this.birds[i].dx;
-            avarage.dy += this.birds[i].dy;
-        }
-        avarage.dx /= this.boidSize - 1;
-        avarage.dy /= this.boidSize - 1;
-        return [avarage.dx ,   avarage.dy];
-    }
-}
 
 class TRUEBOID extends BOID{
-    drawBoid(){
+    drawBoid(s,t){
         //描画コンテキストの取得
         //var context = canvas.getContext('2d');
-        this.upDateBirdsPos()
+        this.upDateBirdsPos(s,t)
         //console.log(this.birds[0])
         this.drawBirds()
     }
 
-    upDateBirdsPos(){
+    upDateBirdsPos(s,t){
         for(let i = 0;i < this.boidSize;i++){
             //let buff = this.cohesion(i)
             let buff = [0,0];
@@ -276,6 +98,7 @@ class TRUEBOID extends BOID{
             buff = this.sumMat(buff,this.multiMat(this.separation(i),SEPARATION_WEIGHT))
             buff = this.sumMat(buff,this.multiMat(this.alignment(i),ALIGNMENT_WEIGHT))
             buff = this.sumMat(buff,this.multiMat(this.evasionWall(i),1))
+            //buff = this.sumMat(buff,this.multiMat(this.evasionPlayer(i,s,t),1))
 
             this.birds[i].upDatePos(buff[0],buff[1])
         }
@@ -335,6 +158,16 @@ class TRUEBOID extends BOID{
         return this.evasion(index,wall);
     }
 
+    //Playerへの忌避
+    evasionPlayer(index,s,t){
+        let distance = this.birds[index].calcDistance(s,t);
+        let vectorA = {x:(this.birds[index].x - s) , y:(this.birds[index].y - t)};
+        if(distance < BOID_PX * 5){
+            return [vectorA.x,vectorA.y]
+        }
+        return [0,0]
+    }
+
     //忌避
     evasion(index,A){
         //console.log("aaaaaa")
@@ -343,7 +176,7 @@ class TRUEBOID extends BOID{
         for(let i = 0;i < A.length;i++){
             let distance = this.birds[index].calcDistance(A[i][0],A[i][1]);
             //近い忌避点に対して離れる方向に加速する
-            if(distance < BOID_PX * 3){
+            if(distance < BOID_PX * 2){
                 let vectorA = {x:A[i][0] - this.birds[index].x , y:A[i][1] - this.birds[index].y};
                 if(Math.abs(vectorA.x) < BIRD_SIZE){
                     if(Math.random() < 0.5){
@@ -515,11 +348,73 @@ function upDateData(A,B,C){
     ALIGNMENT_WEIGHT = C;  //周りに従う強さ
 }
 
-function draw() {  //全体の描画
-    ctx.clearRect(0, 0, canvas.width, canvas.height);   //描画のリセット
-    boid.drawBoid()
+class PLAYER{
+    constructor(x,y,color){
+        this.x = x
+        this.y = y
+        this.dx = 0
+        this.dy = 0
+        this.ddx = 0
+        this.ddy = 0
+        this.a = {ddx:0,ddy:0}
+        this.color = color
+        this.maxSpeed = MAX_SPEED * 1.5
+    }
+    upDatea(){
+        this.ddx = this.a.ddx
+        this.ddy = this.a.ddy
+        //console.log(this.a)
+    }
+    upDatePos(){
+        //加速度を更新
+        //更新する速度を計算
+        if(Math.pow(this.dx + this.ddx,2) + Math.pow(this.dy + this.ddy,2) > Math.pow(this.maxSpeed,2)){
+            var buff = this.maxSpeed / Math.sqrt(Math.pow(this.dx + this.ddx,2) + Math.pow(this.dy + this.ddy,2))
+            this.dx = (this.dx + this.ddx) * buff
+            this.dy = (this.dy + this.ddy) * buff
+        }else{
+            this.dx += this.ddx;
+            this.dy += this.ddy;
+        }
+        
+        if(this.x + this.dx < 0){
+            this.dx = Math.abs(this.dx)
+            this.ddx = 0
+        }else if(canvas.width < this.x + this.dx){
+            this.dx = -Math.abs(this.dx)
+            this.ddx = 0
+        }
+        this.x += this.dx
+
+        if(this.y + this.dy < 0){
+            this.dy = Math.abs(this.dy)
+            this.ddy = 0
+        }else if(canvas.height < this.y + this.dy){
+            this.dy = -Math.abs(this.dy)
+            this.ddy = 0
+        }
+        this.y += this.dy
+    }
+    drawPlayer(){
+        this.upDatePos()
+        ctx.fillStyle = this.color;
+        //円（塗りつぶし）
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, BIRD_SIZE*2, 0, Math.PI*2, false);
+        ctx.fill();
+    }
 }
 
+function draw() {  //全体の描画
+    addEventListener("keydown", this.keydownfunc, false);//キーイベント（押す）
+    addEventListener("keyup", this.keyupfunc, false);//キーイベント（離す）
+    ctx.clearRect(0, 0, canvas.width, canvas.height);   //描画のリセット
+    boid.drawBoid()     //鳥の群れの描画
+    //player.drawPlayer() //人を描画
+}
+
+
+//var player = new PLAYER(canvas.width / 2,canvas.height / 2,"#df0a2a")
 var boid = new TRUEBOID(BOID_SIZE)
 
 var interval = setInterval(draw, 1000/FPS);

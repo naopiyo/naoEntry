@@ -41,6 +41,17 @@
           <li>分離(Separation)</li>
           <li>整列(Alignment)</li>
         </ul>
+        <h4>凝集</h4>
+        一定範囲内の鳥を群れと認識し，その群れの中心に向かうパラメータ
+        <br>
+        <h4>分離</h4>
+        接近しすぎた仲間とぶつからないように，その仲間から離れるパラメータ
+        <br>
+        <h4>整列</h4>
+        一定範囲内の鳥を群れと認識し，その群れの向かっている方向と同じ方向に移動するパラメータ
+        <br>
+        <br>
+        これを利用してプログラムを書いてみた．下のスライダで，それぞれのパラメータの大きさを変化させて遊んでみてください．
 
         <div style="margin-bottom:10px;">
           <form action="#" id="form">
@@ -60,6 +71,7 @@
         <br>
           <canvas id = "Canvas" width="600px" height="600px"  style="background-color: 	#d8f2f0; border: 1px solid black"></canvas>
         <br>
+      デフォルトで，壁への接触を避けています．これを使って牧羊犬ゲームとか作れそうです．
 
 
       
@@ -68,7 +80,7 @@
       <script>
 
         
-        const inputCohesionElem = document.getElementById('Cohesion'); // input要素
+        const inputCohesionElem = document.getElementById('Cohesion'); // input要素 
         const CohesionValue = document.getElementById('current-Cohesion-value'); // 埋め込む先のspan要素
         const inputSeparationElem = document.getElementById('Separation'); // input要素
         const SeparationValue = document.getElementById('current-Separation-value'); // 埋め込む先のspan要素
@@ -100,6 +112,7 @@
           inputSeparationElem.addEventListener('input', changeValue);// スライダー変化時にイベントを発火
           inputAlignmentElem.addEventListener('input', changeValue);// スライダー変化時にイベントを発火
           setCurrentValue(inputCohesionElem.value,inputSeparationElem.value,inputAlignmentElem.value); // ページ読み込み時に値をセット
+
         }
       </script>
       
