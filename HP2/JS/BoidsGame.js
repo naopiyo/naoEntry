@@ -68,7 +68,7 @@ class BOID {
             //console.log(AA)
             
             this.birds.push(new BIRD(   Math.floor(Math.random() * (canvas.width + 1))      //x
-                                        ,Math.floor(Math.random() * (canvas.height + 1))    //y
+                                        ,Math.floor(Math.random() * (canvas.height*2/3 + 1))    //y
                                         ,Math.floor(Math.random()*11 - 5)                   //dx
                                         ,Math.floor(Math.random()*11 - 5)                   //dy
                                         ,Math.floor(Math.random()*11 - 5)                   //ddx
@@ -91,6 +91,10 @@ class TRUEBOID extends BOID{
 
     upDateBirdsPos(s,t){
         for(let i = 0;i < this.boidSize;i++){
+            if(this.birds[i].calcDistance(s,t) < BIRD_SIZE * 3){
+                this.deleteBird(i);
+                return;
+            }
             //let buff = this.cohesion(i)
             let buff = [0,0];
             
@@ -162,10 +166,18 @@ class TRUEBOID extends BOID{
     evasionPlayer(index,s,t){
         let distance = this.birds[index].calcDistance(s,t);
         let vectorA = {x:(this.birds[index].x - s) , y:(this.birds[index].y - t)};
+        
         if(distance < BOID_PX * 5){
             return [vectorA.x,vectorA.y]
         }
         return [0,0]
+    }
+
+    //鳥の消去
+    deleteBird(index){
+        //console.log(this.birds.length)
+        this.birds.splice(index,1)
+        this.boidSize = this.birds.length
     }
 
     //忌避
@@ -353,7 +365,7 @@ class PLAYER{
         this.x = x
         this.y = y
         this.dx = 0
-        this.dy = 0
+        this.dy = -1
         this.ddx = 0
         this.ddy = 0
         this.a = {ddx:0,ddy:0}
@@ -405,14 +417,117 @@ class PLAYER{
     }
 }
 
-function draw() {  //全体の描画
-    addEventListener("keydown", this.keydownfunc, false);//キーイベント（押す）
-    addEventListener("keyup", this.keyupfunc, false);//キーイベント（離す）
-    ctx.clearRect(0, 0, canvas.width, canvas.height);   //描画のリセット
-    boid.drawBoid(player.x,player.y)     //鳥の群れの描画
-    player.drawPlayer() //人を描画
+function makescene(){
+    ctx.fillStyle = 'rgb(10,150,150)';
+    ctx.strokeStyle = 'rgb(00,00,255)';
+    ctx.fillRect((canvas.width*(1-3/4))/2, canvas.height*4/15, canvas.width*3/4, canvas.height*1/7);
+    ctx.strokeRect((canvas.width*(1-3/4))/2, canvas.height*4/15, canvas.width*3/4, canvas.height*1/7);
+
+
+
+    //テキスト描画のスタイルを指定する
+    ctx.fillStyle = 'rgb(50,50,50)';
+    ctx.font = "60px 'ＭＳ ゴシック'";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText("パックマン", canvas.width/2, canvas.height*7/25, canvas.width);
+
+    //console.log('a')
+    ctx.font = "20px 'ＭＳ ゴシック'";
+    ctx.fillText("時間内に'w''a''s''d'で捕食者を操作し，", canvas.width/2, canvas.height*9/16, canvas.width);
+    ctx.fillText("獲物を多く捕食せよ．", canvas.width/2, canvas.height*10/16, canvas.width);
+
+    ctx.fillStyle = 'rgba(50,50,50,'+ (Math.abs(Math.sin(sceneTime*30 / FPS))) +')';
+    ctx.fillText("start game by 's' key", canvas.width/2, canvas.height*7/16, canvas.width);
+    addEventListener("keyup", gameStart, false);//キーイベント（離す）
+    //ctx.fillRect(150, 150, 450, 450);
+    //ctx.fillRect(canvas.width/4, canvas.height/3, canvas.width*3/4, canvas.height*2/3);
+    //ctx.clearRect(45, 45, 60, 60);
 }
+
+function gameStart(event){
+    var key_code = event.keyCode;
+    //console.log(key_code)
+    //console.log(sceneNum.menu)
+    if( key_code !== 83 || sceneNum.menu === false){
+        return;
+    }
+    player = new PLAYER(canvas.width*1 / 2,canvas.height*3 / 4,"#df0a2a")
+    boid = new TRUEBOID(BOID_SIZE)
+    //console.log(key_code)
+    sceneNum.menu = false;
+    sceneNum.game = true;
+    sceneTime = 0;
+}
+
+
+function timer(){
+    sceneTime += 1/FPS;
+}
+
+function draw() {  //全体の描画
+    timer();
+    if(sceneNum.menu === true){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);   //描画のリセット
+        boid.drawBoid(-50,-50)     //鳥の群れの描画
+        makescene();
+    }else if(sceneNum.game === true){
+        addEventListener("keydown", this.keydownfunc, false);//キーイベント（押す）
+        addEventListener("keyup", this.keyupfunc, false);//キーイベント（離す）
+        ctx.clearRect(0, 0, canvas.width, canvas.height);   //描画のリセット
+        boid.drawBoid(player.x,player.y)     //鳥の群れの描画
+        player.drawPlayer() //人を描画
+        printScore();
+    }else{
+        ctx.clearRect(0, 0, canvas.width, canvas.height);   //描画のリセット
+        boid.drawBoid(player.x,player.y)     //鳥の群れの描画
+        player.drawPlayer() //人を描画
+        printResultScore();
+        if(sceneTime >= 5){
+            sceneTime = 0
+            sceneNum.result = false;
+            sceneNum.menu = true;
+            player = new PLAYER(canvas.width*1 / 2,canvas.height*3 / 4,"#df0a2a")
+            boid = new TRUEBOID(BOID_SIZE)
+        }
+    }
+}
+
+function printResultScore(){
+    //テキスト描画のスタイルを指定する
+    ctx.fillStyle = 'rgb(50,50,50)';
+    ctx.font = "60px 'ＭＳ ゴシック'";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText("Score : "+scoreNum, canvas.width/2, canvas.height*7/25, canvas.width);
+}
+
+function printScore(){
+    //テキスト描画のスタイルを指定する
+    ctx.fillStyle = 'rgba(50,50,50,0.8)';
+    ctx.font = "30px 'ＭＳ ゴシック'";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    var leaveTime = 20 - sceneTime;
+    scoreNum = BOID_SIZE - boid.boidSize
+    ctx.fillText("Leave Time : "+ parseInt(leaveTime*100)/100 , 0, 0, canvas.width);
+    ctx.fillText("Score : "+scoreNum, 0, canvas.height/15, canvas.width);
+    if(leaveTime <= 0){
+        resultGame()
+    }
+}
+
+function resultGame(){
+    sceneNum.game = false;
+    sceneNum.result = true;
+    sceneTime = 0;
+}
+
 function keydownfunc(event) {
+    if(sceneNum.game === false){
+        //console.log('a')
+        return;
+    }
     var key_code = event.keyCode;
     //console.log(key_code);
     if( key_code === 65 ) player.a.ddx = -1;    //左
@@ -422,6 +537,9 @@ function keydownfunc(event) {
     player.upDatea()
 }
 function keyupfunc(event) {
+    if(sceneNum.game === false){
+        return;
+    }
     var key_code = event.keyCode;
     if( key_code === 65 ) player.a.ddx = 0;     //左
     if( key_code === 87 ) player.a.ddy = 0;     //上
@@ -430,7 +548,10 @@ function keyupfunc(event) {
     player.upDatea()
 }
 
-var player = new PLAYER(canvas.width / 2,canvas.height / 2,"#df0a2a")
+var sceneNum = {menu:true,game:false,result:false};
+var sceneTime = 0;
+var scoreNum = 0;
+var player = new PLAYER(canvas.width*1 / 2,canvas.height*3 / 4,"#df0a2a")
 var boid = new TRUEBOID(BOID_SIZE)
 
 var interval = setInterval(draw, 1000/FPS);
