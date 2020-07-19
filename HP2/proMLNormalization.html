@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>パターン特徴量の正規化の危険性</title>
+  <link rel="stylesheet" href="../CSS/style.css">
+  <script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    TeX: { equationNumbers: { autoNumber: "AMS" }},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": { matchFontHeight: false },
+    displayAlign: "left",
+    displayIndent: "2em"
+  });
+</script>
+</head>
+
+
+<body>
+  <script src="JS/siteTemplate2.js"></script>
+  <div id="container">
+    <div id="left">
+      <p>パターン特徴量の正規化</p>
+      <script type="text/javascript">leftWrite();</script>
+    </div>
+
+    <div id="contents">
+      <h1></h1>
+      機械学習には正規化というものがある．
+      例えば，次元数$d=2$のサンプル数$n = 11$のサンプル$X$が以下のように与えられたとする
+
+      \begin{align}
+      X &=  \left(
+        \begin{array}{cccc}
+          x_{0} & x_{1} & \cdots & x_{10}
+        \end{array}
+      \right)^{t}\\
+      x_{k} &= \left(
+        \begin{array}{cc}
+          k-5 & 3(k-5)\\
+        \end{array}
+      \right)^{t}\\
+      k &= 0,1,2,\cdots ,10
+      \end{align}
+
+      この平均値$\overline{x}$と分散$\sigma^{2}$，平均距離は
+
+      \begin{align}
+      \overline{x} &= \frac{1}{n}\Sigma_{k=0}^{n}(x_{k})\\
+                  &= \left(
+        \begin{array}{cc}
+          0 & 0\\
+        \end{array}
+      \right)^{t}\\
+      \sigma^{2} &= \frac{1}{n}\Sigma_{k=0}^{n}(x_{k} - \overline{x})\\
+                  &= \left(
+        \begin{array}{cc}
+          \sigma_{0} & \sigma_{1}\\
+        \end{array}
+      \right)^{t}\\
+                  &= \left(
+        \begin{array}{cc}
+          10.00 & 90.00\\
+        \end{array}
+      \right)^{t}\\
+      \end{align}
+
+      となる．ここで，パターン相互距離を最小化する変換行列$A$により$X$を正規化する．なお，$A$は以下のように示されるものとする．
+
+      \begin{align}
+      A &= \left(
+        \begin{array}{cccccc}
+          a_{0} &  &  &  & 0 \\
+           & a_{1} &  &  &  \\
+           &  & a_{2} &  &  \\
+           &  &  & \ddots &  \\
+          0 &  &  &  & a_{d} \\
+        \end{array}
+      \right)\\
+        &= \left(
+        \begin{array}{cc}
+          a_{0} & 0\\
+          0 & a_{1}
+        \end{array}
+      \right)\\
+        &= \left(
+        \begin{array}{cc}
+          \frac{\left(\prod_{k=1}^{d}\sigma_{k}\right)^{\frac{1}{d}}}{\sigma_{0}} & 0\\
+          0 & \frac{\left(\prod_{k=1}^{d}\sigma_{k}\right)^{\frac{1}{d}}}{\sigma_{1}}
+        \end{array}
+      \right)\\
+        &= \left(
+        \begin{array}{cc}
+          1.73 & 0\\
+          0 & 0.58 
+        \end{array}
+      \right)\\
+      \end{align}
+      
+      正規化されたサンプルを$Y = AX$とすると，$Y$とその平均$\overline{y}$と分散$\sigma_{(2)}^{2}$は以下のようになる．
+      \begin{align}
+      Y &= \left(
+        \begin{array}{cc}
+          -8.660 & -8.660 \\
+          -6.928 & -6.928 \\
+          -5.196 & -5.196 \\
+          -3.464 & -3.464 \\
+          -1.732 & -1.732 \\
+          0.000 & 0.000 \\
+          1.732 & 1.732 \\
+          3.464 & 3.464 \\
+          5.196 & 5.196 \\
+          6.928 & 6.928 \\
+          8.660 & 8.660 \\
+        \end{array}
+      \right)= \left(
+        \begin{array}{cccc}
+          y_{0} & y_{1} & \cdots & y_{10}
+        \end{array}
+      \right)^{t}\\ 
+      \overline{y} &= \frac{1}{n}\Sigma_{k=0}^{n}(y_{k})\\
+                  &= \left(
+        \begin{array}{cc}
+          0 & 0\\
+        \end{array}
+      \right)^{t}\\
+      \sigma_{(2)}^{2} &= \frac{1}{n}\Sigma_{k=0}^{n}(x_{k} - \overline{x})\\
+                  &= \left(
+        \begin{array}{cc}
+          \sigma_{0(2)} & \sigma_{1(2)}\\
+        \end{array}
+      \right)^{t}\\
+                  &= \left(
+        \begin{array}{cc}
+          30.00 & 30.00\\
+        \end{array}
+      \right)^{t}\\
+      \end{align}
+      分散が等しくなり，このサンプルは正規化された．
+      <h1>パターン特徴量の正規化の危険性</h1>
+      正規化されたサンプルの次元は$d=2$であるが，クラスタリングに使われるパラメータが片方の次元のみだった場合，正規化のされ方によって特徴量が希釈・強調される場合がある．
+      ここでいう，希釈・強調は分散の小さい・多いを示す．
+
+      例えば，前述の$X$で1次元目の方のみに注目すると，分散値が$10.00$から$30.00$となっており，特徴量が強調されている．
+
+      一方，$X$で2次元目の方のみに注目すると，分散値が$90.00$から$30.00$となっており，特徴量が希釈されている．
+
+      ユークリッド距離を用いたクラスタリングを片方の次元でのみ行った時，特徴量が強調されている次元では，ユークリッド距離が大きくなりクラスタリングがしやすくなり，
+      希釈されている次元では，ユークリッド距離が小さくなりクラスタリングがしずらくなる．
+    </div>
+  </div>
+
+  <script type="text/javascript">containerWrite();</script>
+
+</body>
+</html>
